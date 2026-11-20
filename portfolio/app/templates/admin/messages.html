@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import delete_form %}
+{% block title %}الرسائل الواردة{% endblock %}
+{% block content %}
+<div class="page-actions">
+  <a class="a-btn {{ 'a-btn-primary' if show == 'all' }}" href="{{ url_for('admin.messages') }}">الكل</a>
+  <a class="a-btn {{ 'a-btn-primary' if show == 'unread' }}" href="{{ url_for('admin.messages', show='unread') }}">غير المقروءة {% if unread_count %}<span class="badge">{{ unread_count }}</span>{% endif %}</a>
+</div>
+<section class="card">
+  {% if page.items %}
+  <ul class="msg-list" role="list">
+    {% for m in page.items %}
+    <li class="msg-row {{ '' if m.is_read else 'is-unread' }}">
+      <a class="msg-link" href="{{ url_for('admin.message_view', message_id=m.id) }}">
+        <span class="msg-dot" aria-hidden="true"></span>
+        <span class="msg-from"><strong>{{ m.name }}</strong><small class="muted" dir="ltr">{{ m.email }}</small></span>
+        <span class="msg-subject">{{ m.subject or '(بدون موضوع)' }}<small class="muted">{{ m.body|truncate(90) }}</small></span>
+        <time class="mono small muted">{{ m.created_at.strftime('%Y-%m-%d %H:%M') }}</time>
+      </a>
+      <span class="row-actions">
+        <form method="post" action="{{ url_for('admin.message_toggle', message_id=m.id) }}" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="a-btn a-btn-sm" type="submit" title="{{ 'تعليم كغير مقروءة' if m.is_read else 'تعليم كمقروءة' }}">{{ icon('eye-off' if m.is_read else 'eye', 15) }}</button>
+        </form>
+        {{ delete_form(url_for('admin.message_delete', message_id=m.id), label='', confirm='حذف الرسالة؟') }}
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% if page.pages > 1 %}
+  <nav class="pager" aria-label="الصفحات">
+    {% if page.has_prev %}<a class="a-btn a-btn-sm" href="{{ url_for('admin.messages', page=page.prev_num, show=show) }}">السابق</a>{% endif %}
+    <span class="mono small">{{ page.page }} / {{ page.pages }}</span>
+    {% if page.has_next %}<a class="a-btn a-btn-sm" href="{{ url_for('admin.messages', page=page.next_num, show=show) }}">التالي</a>{% endif %}
+  </nav>
+  {% endif %}
+  {% else %}<p class="empty">لا توجد رسائل.</p>{% endif %}
+</section>
+{% endblock %}

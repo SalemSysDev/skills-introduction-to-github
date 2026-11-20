@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import icon_select %}
+{% block title %}المهارات التقنية{% endblock %}
+{% block content %}
+<p class="muted">نظّم مهاراتك في تصنيفات. مستوى الإتقان اختياري — يمكنك تركه فارغاً.</p>
+{% for c in categories %}
+<section class="card" id="cat-{{ c.id }}">
+  <details class="cat-edit">
+    <summary class="card-title">{{ icon(c.icon, 18) }} {{ c.name_ar }} <small class="muted mono">{{ c.name_en }}</small> <span class="muted small">— تعديل التصنيف</span></summary>
+    <form method="post" action="{{ url_for('admin.skill_category_save', category_id=c.id) }}" class="stack-sm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="grid-3">
+        <label class="field"><span>الاسم بالعربية</span><input type="text" name="name_ar" value="{{ c.name_ar }}" maxlength="100"></label>
+        <label class="field"><span>English name</span><input type="text" name="name_en" value="{{ c.name_en }}" dir="ltr" maxlength="100"></label>
+        <label class="field"><span>الترتيب</span><input type="number" name="sort_order" value="{{ c.sort_order }}"></label>
+      </div>
+      {{ icon_select('icon', c.icon) }}
+      <div class="row-actions">
+        <button class="a-btn a-btn-primary a-btn-sm" type="submit">{{ icon('check', 15) }} حفظ التصنيف</button>
+        <button class="a-btn a-btn-sm btn-danger" type="submit" form="del-cat-{{ c.id }}">{{ icon('trash', 15) }} حذف التصنيف</button>
+      </div>
+    </form>
+    <form id="del-cat-{{ c.id }}" method="post" action="{{ url_for('admin.skill_category_delete', category_id=c.id) }}" data-confirm="حذف التصنيف وكل مهاراته؟" hidden>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+  </details>
+
+  <div class="inline-rows">
+    {% for s in c.skills %}
+    <form method="post" action="{{ url_for('admin.skill_save', skill_id=s.id) }}" class="inline-row">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="text" name="name" value="{{ s.name }}" dir="ltr" maxlength="80" required aria-label="اسم المهارة">
+      <select name="level" aria-label="المستوى">{% for k, v in level_labels.items() %}<option value="{{ k }}" {% if s.level == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+      <input type="number" name="sort_order" value="{{ s.sort_order }}" class="num" aria-label="الترتيب">
+      <button class="a-btn a-btn-sm" type="submit">{{ icon('check', 15) }} حفظ</button>
+      <button class="a-btn a-btn-sm btn-danger" type="submit" form="del-skill-{{ s.id }}" aria-label="حذف">{{ icon('trash', 15) }}</button>
+    </form>
+    <form id="del-skill-{{ s.id }}" method="post" action="{{ url_for('admin.skill_delete', skill_id=s.id) }}" data-confirm="حذف المهارة؟" hidden>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+    {% endfor %}
+    <form method="post" action="{{ url_for('admin.skill_save', category_id=c.id) }}" class="inline-row is-new">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="text" name="name" placeholder="مهارة / تقنية جديدة" dir="ltr" maxlength="80" required aria-label="اسم المهارة">
+      <select name="level" aria-label="المستوى">{% for k, v in level_labels.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select>
+      <input type="number" name="sort_order" value="{{ c.skills|length + 1 }}" class="num" aria-label="الترتيب">
+      <button class="a-btn a-btn-sm a-btn-primary" type="submit">{{ icon('plus', 15) }} إضافة</button>
+    </form>
+  </div>
+</section>
+{% endfor %}
+
+<section class="card">
+  <h2 class="card-title">{{ icon('plus', 18) }} تصنيف جديد</h2>
+  <form method="post" action="{{ url_for('admin.skill_category_save') }}" class="stack-sm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="grid-3">
+      <label class="field"><span>الاسم بالعربية</span><input type="text" name="name_ar" maxlength="100"></label>
+      <label class="field"><span>English name</span><input type="text" name="name_en" dir="ltr" maxlength="100"></label>
+      <label class="field"><span>الترتيب</span><input type="number" name="sort_order" value="{{ categories|length + 1 }}"></label>
+    </div>
+    {{ icon_select('icon', 'code') }}
+    <button class="a-btn a-btn-primary" type="submit">{{ icon('plus', 16) }} إضافة التصنيف</button>
+  </form>
+</section>
+{% endblock %}

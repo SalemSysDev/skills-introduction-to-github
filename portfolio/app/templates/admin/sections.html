@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import checkbox %}
+{% block title %}الأقسام وترتيبها{% endblock %}
+{% block content %}
+<section class="card">
+  <p class="muted">تحكّم في ظهور أقسام الصفحة الرئيسية وترتيبها. القسم المخفي يختفي أيضاً من القائمة وتصبح صفحته المستقلة غير متاحة. (قسم الواجهة الرئيسية Hero يظهر دائماً في الأعلى.)</p>
+  <form method="post" id="sections-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <ol class="section-list" role="list">
+      {% for s in items %}
+      <li class="section-row">
+        <span class="mono muted">{{ "%02d"|format(loop.index) }}</span>
+        <strong>{{ labels[s.key] }}</strong>
+        <input type="hidden" name="order_{{ s.key }}" value="{{ loop.index }}">
+        {{ checkbox('visible_' ~ s.key, 'ظاهر', s.is_visible) }}
+        <span class="row-actions">
+          <button class="a-btn a-btn-sm" type="submit" form="move-{{ s.key }}-up" {% if loop.first %}disabled{% endif %} aria-label="تحريك للأعلى">{{ icon('arrow-up', 15) }}</button>
+          <button class="a-btn a-btn-sm" type="submit" form="move-{{ s.key }}-down" {% if loop.last %}disabled{% endif %} aria-label="تحريك للأسفل">{{ icon('arrow-down', 15) }}</button>
+        </span>
+      </li>
+      {% endfor %}
+    </ol>
+    <button class="a-btn a-btn-primary" type="submit">{{ icon('check', 16) }} حفظ الظهور</button>
+  </form>
+  {% for s in items %}
+    {% for d in ('up', 'down') %}
+    <form method="post" id="move-{{ s.key }}-{{ d }}" action="{{ url_for('admin.section_move', key=s.key, direction=d) }}" hidden>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+    {% endfor %}
+  {% endfor %}
+</section>
+{% endblock %}

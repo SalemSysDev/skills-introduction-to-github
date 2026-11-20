@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import bi, input, checkbox %}
+{% block title %}{{ 'تعديل مشروع' if project.id else 'مشروع جديد' }}{% endblock %}
+{% block content %}
+<div class="page-actions">
+  <a class="a-btn" href="{{ url_for('admin.projects') }}">{{ icon('arrow-right', 16) }} كل المشاريع</a>
+  {% if project.id and project.is_published %}<a class="a-btn" href="{{ url_for('public.project_detail', slug=project.slug) }}" target="_blank" rel="noopener">{{ icon('eye', 16) }} معاينة</a>{% endif %}
+</div>
+<form method="post" enctype="multipart/form-data" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <section class="card">
+    <h2 class="card-title">{{ icon('edit', 18) }} معلومات المشروع</h2>
+    {{ bi(project, 'title', 'اسم المشروع', 150, required=true) }}
+    {{ bi(project, 'summary', 'وصف مختصر (يظهر في البطاقة)', 300, textarea=true, rows=2) }}
+    {{ bi(project, 'description', 'الوصف التفصيلي', 10000, textarea=true, rows=8, hint='افصل بين الفقرات بسطر فارغ.') }}
+    <div class="grid-2">
+      {{ input('technologies', 'التقنيات المستخدمة (مفصولة بفواصل)', project.technologies, maxlength=500, dir='ltr', placeholder='Flask, MySQL, JavaScript') }}
+      <label class="field"><span>التصنيف</span>
+        <select name="category_id">
+          <option value="">— بدون تصنيف —</option>
+          {% for c in categories %}<option value="{{ c.id }}" {% if project.category_id == c.id %}selected{% endif %}>{{ c.name_ar or c.name_en }}</option>{% endfor %}
+        </select>
+        <small class="hint">تُدار التصنيفات من صفحة المشاريع.</small>
+      </label>
+      {{ input('github_url', 'رابط GitHub', project.github_url, type='url', dir='ltr', placeholder='https://github.com/...') }}
+      {{ input('demo_url', 'رابط المعاينة Live Demo', project.demo_url, type='url', dir='ltr', placeholder='https://...') }}
+      {{ input('project_date', 'التاريخ (نص حر)', project.project_date, maxlength=30, placeholder='2025') }}
+      {{ input('slug', 'الرابط المختصر (slug)', project.slug, maxlength=150, dir='ltr', hint='يُولّد تلقائياً من الاسم الإنجليزي إن تُرك فارغاً.') }}
+      {{ input('sort_order', 'الترتيب', project.sort_order or 0, type='number') }}
+    </div>
+    <div class="switch-row">
+      {{ checkbox('is_published', 'منشور (ظاهر للزوار)', project.is_published if project.id else true) }}
+      {{ checkbox('is_featured', 'مشروع مميز (يظهر أولاً)', project.is_featured) }}
+    </div>
+  </section>
+
+  <section class="card" id="images">
+    <h2 class="card-title">{{ icon('image', 18) }} صور المشروع</h2>
+    <p class="hint">الصورة الأولى في الترتيب هي صورة الغلاف. يمكنك اختيار عدة صور مرة واحدة (حتى {{ config.MAX_IMAGE_MB }}MB للصورة).</p>
+    <label class="dropzone">
+      {{ icon('image', 28) }}
+      <span>اسحب الصور هنا أو انقر للاختيار</span>
+      <input type="file" name="images" accept="image/jpeg,image/png,image/webp,image/gif" multiple data-multi-preview>
+    </label>
+    <div class="new-previews" data-previews></div>
+    {% if project.images %}
+    <ul class="image-grid" role="list">
+      {% for img in project.images %}
+      <li class="image-card">
+        <img src="{{ url_for('static', filename=img.thumb_path) }}" alt="">
+        {% if loop.first %}<span class="pill pill-amber cover-pill">الغلاف</span>{% endif %}
+        <input type="text" name="img_caption_ar_{{ img.id }}" value="{{ img.caption_ar }}" placeholder="وصف الصورة" maxlength="200" aria-label="وصف الصورة بالعربية">
+        <input type="text" name="img_caption_en_{{ img.id }}" value="{{ img.caption_en }}" placeholder="Caption" dir="ltr" maxlength="200" aria-label="Caption">
+        <div class="image-card-foot">
+          <label>ترتيب <input type="number" class="num" name="img_order_{{ img.id }}" value="{{ img.sort_order }}"></label>
+          <button class="a-btn a-btn-sm btn-danger" type="submit" form="del-img-{{ img.id }}" aria-label="حذف الصورة">{{ icon('trash', 15) }}</button>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+  <div class="sticky-actions"><button class="a-btn a-btn-primary" type="submit">{{ icon('check', 16) }} حفظ المشروع</button></div>
+</form>
+{% for img in project.images %}
+<form id="del-img-{{ img.id }}" method="post" action="{{ url_for('admin.project_image_delete', image_id=img.id) }}" data-confirm="حذف هذه الصورة؟" hidden>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+{% endfor %}
+{% endblock %}

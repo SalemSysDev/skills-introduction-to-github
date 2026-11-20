@@ -1,0 +1,83 @@
+{% from "partials/_macros.html" import section_head %}
+<section class="section section-contact" id="contact">
+  <div class="container">
+    {{ section_head(num|default('01'), 'contact', t('contact.title'), t('contact.subtitle'), tag=('h1' if standalone else 'h2')) }}
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <p class="contact-intro">{{ t('contact.intro') }}</p>
+        {% if profile.email or profile.whatsapp_link or profile.github_url or profile.facebook_url or profile.linkedin_url %}
+        <h3 class="mono small muted">{{ t('contact.direct') }}</h3>
+        <ul class="contact-list" role="list">
+          {% if profile.email %}
+          <li class="contact-item">
+            <span class="icon-box">{{ icon('mail', 20) }}</span>
+            <div><span class="contact-label">{{ t('contact.email') }}</span>
+              <a href="mailto:{{ profile.email }}" dir="ltr">{{ profile.email }}</a></div>
+            <button type="button" class="copy-btn" data-copy="{{ profile.email }}" data-copied-label="{{ t('contact.copied') }}" aria-label="{{ t('contact.copy') }}" title="{{ t('contact.copy') }}">
+              {{ icon('copy', 16) }}<span class="copy-label">{{ t('contact.copy') }}</span></button>
+          </li>
+          {% endif %}
+          {% if profile.whatsapp_link %}
+          <li class="contact-item">
+            <span class="icon-box icon-wa">{{ icon('whatsapp', 20) }}</span>
+            <div><span class="contact-label">{{ t('contact.whatsapp') }}</span>
+              <a href="{{ profile.whatsapp_link }}" target="_blank" rel="noopener noreferrer" dir="ltr">{{ profile.whatsapp_number }}</a></div>
+          </li>
+          {% endif %}
+          {% if profile.github_url %}
+          <li class="contact-item">
+            <span class="icon-box">{{ icon('github', 20) }}</span>
+            <div><span class="contact-label">GitHub</span>
+              <a href="{{ profile.github_url }}" target="_blank" rel="noopener noreferrer" dir="ltr">{{ profile.github_url|replace('https://','')|replace('www.','') }}</a></div>
+          </li>
+          {% endif %}
+          {% if profile.facebook_url %}
+          <li class="contact-item">
+            <span class="icon-box icon-fb">{{ icon('facebook', 20) }}</span>
+            <div><span class="contact-label">Facebook</span>
+              <a href="{{ profile.facebook_url }}" target="_blank" rel="noopener noreferrer" dir="ltr">{{ profile.facebook_url|replace('https://','')|replace('www.','') }}</a></div>
+          </li>
+          {% endif %}
+          {% if profile.linkedin_url %}
+          <li class="contact-item">
+            <span class="icon-box">{{ icon('linkedin', 20) }}</span>
+            <div><span class="contact-label">LinkedIn</span>
+              <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener noreferrer" dir="ltr">{{ profile.linkedin_url|replace('https://','')|replace('www.','') }}</a></div>
+          </li>
+          {% endif %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <form class="contact-form reveal" style="--d:120ms" method="post" action="{{ url_for('public.contact') }}" novalidate data-contact-form
+            data-sending="{{ t('contact.sending') }}" data-error="{{ t('contact.error') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+        <div class="form-row">
+          <div class="field">
+            <label for="c-name">{{ t('contact.name') }}</label>
+            <input id="c-name" name="name" type="text" required minlength="2" maxlength="120" autocomplete="name">
+            <p class="field-error" data-error-for="name"></p>
+          </div>
+          <div class="field">
+            <label for="c-email">{{ t('contact.email') }}</label>
+            <input id="c-email" name="email" type="email" required maxlength="150" autocomplete="email" dir="ltr">
+            <p class="field-error" data-error-for="email"></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="c-subject">{{ t('contact.subject') }}</label>
+          <input id="c-subject" name="subject" type="text" maxlength="200">
+          <p class="field-error" data-error-for="subject"></p>
+        </div>
+        <div class="field">
+          <label for="c-message">{{ t('contact.message') }}</label>
+          <textarea id="c-message" name="message" rows="6" required minlength="10" maxlength="5000"></textarea>
+          <p class="field-error" data-error-for="message"></p>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">{{ icon('send', 18) }} <span data-label>{{ t('contact.send') }}</span></button>
+        <p class="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+</section>

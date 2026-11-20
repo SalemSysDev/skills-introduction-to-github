@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import input %}
+{% block title %}الحساب والأمان{% endblock %}
+{% block content %}
+<form method="post" class="card stack narrow" autocomplete="off">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <h2 class="card-title">{{ icon('lock', 18) }} بيانات الدخول</h2>
+  {{ input('username', 'اسم المستخدم', admin.username, maxlength=64, dir='ltr', required=true) }}
+  <label class="field"><span>كلمة المرور الجديدة (اتركها فارغة لعدم التغيير)</span>
+    <input type="password" name="new_password" minlength="10" autocomplete="new-password" dir="ltr"><small class="hint">10 أحرف على الأقل.</small></label>
+  <label class="field"><span>تأكيد كلمة المرور الجديدة</span><input type="password" name="confirm_password" autocomplete="new-password" dir="ltr"></label>
+  <hr>
+  <label class="field"><span>كلمة المرور الحالية <span class="req">*</span></span><input type="password" name="current_password" required autocomplete="current-password" dir="ltr"></label>
+  <div><button class="a-btn a-btn-primary" type="submit">{{ icon('check', 16) }} حفظ</button></div>
+  <p class="hint">آخر تسجيل دخول: <span class="mono">{{ admin.last_login_at.strftime('%Y-%m-%d %H:%M') if admin.last_login_at else '—' }}</span> (UTC)</p>
+</form>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% from "partials/_macros.html" import section_head, project_card %}
+<section class="section section-projects" id="projects">
+  <div class="container">
+    {{ section_head(num|default('01'), 'projects', t('projects.title'), t('projects.subtitle'), tag=('h1' if standalone else 'h2')) }}
+    {% if projects %}
+    <div class="projects-grid">
+      {% for p in projects %}{{ project_card(p, loop.index0) }}{% endfor %}
+    </div>
+    <div class="section-cta reveal">
+      <a class="btn btn-ghost" href="{{ url_for('public.projects') }}">{{ t('projects.view_all') }}{% if project_total %} <span class="mono">({{ project_total }})</span>{% endif %} {{ icon('arrow-right', 18, 'flip-rtl') }}</a>
+    </div>
+    {% else %}
+    <p class="empty-state">{{ icon('folder', 28) }} {{ t('projects.empty') }}</p>
+    {% endif %}
+  </div>
+</section>

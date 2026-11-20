@@ -1,0 +1,36 @@
+{% from "partials/_macros.html" import section_head %}
+<section class="section section-gallery" id="gallery">
+  <div class="container">
+    {{ section_head(num|default('01'), 'gallery', t('gallery.title'), t('gallery.subtitle'), tag=('h1' if standalone else 'h2')) }}
+    {% if gallery_images %}
+    {% if full_gallery %}
+    {% set cats = gallery_images|map(attribute='category')|unique|list %}
+    {% if cats|length > 1 %}
+    <div class="filter-bar reveal" data-filter-group="gallery" role="group" aria-label="{{ t('gallery.title') }}">
+      <button type="button" class="filter-btn is-active" data-filter="all" aria-pressed="true">{{ t('gallery.all') }}</button>
+      {% for c in cats %}<button type="button" class="filter-btn" data-filter="{{ c }}" aria-pressed="false">{{ t('gallery.cat.' ~ c) }}</button>{% endfor %}
+    </div>
+    {% endif %}
+    {% endif %}
+    <ul class="gallery-grid" role="list" data-lightbox-group="gallery">
+      {% for img in gallery_images %}
+      <li class="gallery-item reveal" data-category="{{ img.category }}" style="--d: {{ (loop.index0 % 4) * 60 }}ms">
+        <a href="{{ url_for('static', filename=img.path) }}" data-lightbox data-caption="{{ tr(img, 'caption') }}">
+          <img src="{{ url_for('static', filename=img.thumb_path) }}" alt="{{ tr(img, 'caption') or t('gallery.title') }}" loading="lazy" decoding="async"
+               {% if img.width and img.height %}width="{{ img.width }}" height="{{ img.height }}"{% endif %}>
+          <span class="gallery-overlay">
+            {% if tr(img, 'caption') %}<span class="gallery-caption">{{ tr(img, 'caption') }}</span>{% endif %}
+            <span class="chip chip-soft">{{ t('gallery.cat.' ~ img.category) }}</span>
+          </span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if not full_gallery and gallery_total and gallery_total > gallery_images|length %}
+    <div class="section-cta reveal"><a class="btn btn-ghost" href="{{ url_for('public.gallery') }}">{{ t('gallery.view_all') }} ({{ gallery_total }}) {{ icon('arrow-right', 18, 'flip-rtl') }}</a></div>
+    {% endif %}
+    {% else %}
+    <p class="empty-state">{{ icon('image', 28) }} {{ t('gallery.empty') }}</p>
+    {% endif %}
+  </div>
+</section>

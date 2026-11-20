@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import delete_form %}
+{% block title %}التعليم والخبرات{% endblock %}
+{% block content %}
+<div class="page-actions">
+  {% for k, v in kind_labels.items() %}
+  <a class="a-btn {{ 'a-btn-primary' if loop.first else '' }}" href="{{ url_for('admin.timeline_form', kind=k) }}">{{ icon('plus', 16) }} {{ v }}</a>
+  {% endfor %}
+</div>
+<section class="card">
+  {% if items %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>العنوان</th><th>النوع</th><th>الفترة</th><th>الحالة</th><th><span class="sr-only">إجراءات</span></th></tr></thead>
+    <tbody>
+    {% for e in items %}
+      <tr>
+        <td><strong>{{ e.title_ar or e.title_en }}</strong><br><small class="muted">{{ e.organization_ar or e.organization_en }}</small></td>
+        <td><span class="pill">{{ kind_labels[e.kind] }}</span></td>
+        <td class="mono small">{{ e.start_date }}{% if e.end_date %} — {{ e.end_date }}{% endif %}</td>
+        <td>{% if e.is_visible %}<span class="pill pill-green">ظاهر</span>{% else %}<span class="pill">مخفي</span>{% endif %}</td>
+        <td class="row-actions">
+          <a class="a-btn a-btn-sm" href="{{ url_for('admin.timeline_form', entry_id=e.id) }}">{{ icon('edit', 15) }} تعديل</a>
+          {{ delete_form(url_for('admin.timeline_delete', entry_id=e.id)) }}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<p class="empty">لا توجد عناصر بعد. أضف مؤهلك الدراسي ودوراتك وشهاداتك وخبراتك.</p>{% endif %}
+</section>
+{% endblock %}

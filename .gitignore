@@ -35,3 +35,6 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Portfolio schema file must be tracked
+!portfolio/database/schema.sql
