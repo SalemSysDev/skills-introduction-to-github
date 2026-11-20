@@ -1,0 +1,54 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import checkbox %}
+{% block title %}معرض الصور{% endblock %}
+{% block content %}
+<section class="card">
+  <h2 class="card-title">{{ icon('plus', 18) }} رفع صور جديدة</h2>
+  <form method="post" enctype="multipart/form-data" class="stack-sm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="dropzone">
+      {{ icon('image', 28) }}
+      <span>اسحب الصور هنا أو انقر للاختيار (يمكن اختيار عدة صور)</span>
+      <input type="file" name="images" accept="image/jpeg,image/png,image/webp,image/gif" multiple required data-multi-preview>
+    </label>
+    <div class="new-previews" data-previews></div>
+    <div class="grid-3">
+      <label class="field"><span>التصنيف</span>
+        <select name="category">{% for k, v in gallery_labels.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></label>
+      <label class="field"><span>وصف (عربي) — اختياري</span><input type="text" name="caption_ar" maxlength="200"></label>
+      <label class="field"><span>Caption (English)</span><input type="text" name="caption_en" maxlength="200" dir="ltr"></label>
+    </div>
+    <button class="a-btn a-btn-primary" type="submit">{{ icon('plus', 16) }} رفع</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2 class="card-title">{{ icon('image', 18) }} الصور ({{ items|length }})</h2>
+  {% if items %}
+  <ul class="image-grid" role="list">
+    {% for img in items %}
+    <li class="image-card {{ '' if img.is_visible else 'is-hidden-item' }}" id="img-{{ img.id }}">
+      <a href="{{ url_for('static', filename=img.path) }}" target="_blank" rel="noopener"><img src="{{ url_for('static', filename=img.thumb_path) }}" alt="" loading="lazy"></a>
+      <form method="post" action="{{ url_for('admin.gallery_update', image_id=img.id) }}" class="stack-xs">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="caption_ar" value="{{ img.caption_ar }}" placeholder="وصف الصورة" maxlength="200" aria-label="وصف بالعربية">
+        <input type="text" name="caption_en" value="{{ img.caption_en }}" placeholder="Caption" dir="ltr" maxlength="200" aria-label="Caption">
+        <select name="category" aria-label="التصنيف">{% for k, v in gallery_labels.items() %}<option value="{{ k }}" {% if img.category == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+        <div class="image-card-foot">
+          <label>ترتيب <input type="number" class="num" name="sort_order" value="{{ img.sort_order }}"></label>
+          {{ checkbox('is_visible', 'ظاهرة', img.is_visible) }}
+        </div>
+        <div class="image-card-foot">
+          <button class="a-btn a-btn-sm" type="submit">{{ icon('check', 15) }} حفظ</button>
+          <button class="a-btn a-btn-sm btn-danger" type="submit" form="del-g-{{ img.id }}" aria-label="حذف">{{ icon('trash', 15) }}</button>
+        </div>
+      </form>
+      <form id="del-g-{{ img.id }}" method="post" action="{{ url_for('admin.gallery_delete', image_id=img.id) }}" data-confirm="حذف هذه الصورة نهائياً؟" hidden>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}<p class="empty">لا توجد صور بعد.</p>{% endif %}
+</section>
+{% endblock %}

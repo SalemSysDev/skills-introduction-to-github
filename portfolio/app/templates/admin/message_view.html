@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import delete_form %}
+{% block title %}رسالة من {{ m.name }}{% endblock %}
+{% block content %}
+<div class="page-actions">
+  <a class="a-btn" href="{{ url_for('admin.messages') }}">{{ icon('arrow-right', 16) }} كل الرسائل</a>
+  <a class="a-btn a-btn-primary" href="mailto:{{ m.email }}?subject={{ ('Re: ' ~ (m.subject or ''))|urlencode }}">{{ icon('reply', 16) }} الرد عبر البريد</a>
+  {{ delete_form(url_for('admin.message_delete', message_id=m.id), confirm='حذف الرسالة؟') }}
+</div>
+<article class="card message-card">
+  <dl class="spec-list">
+    <div><dt>المرسل</dt><dd>{{ m.name }}</dd></div>
+    <div><dt>البريد</dt><dd dir="ltr"><a href="mailto:{{ m.email }}">{{ m.email }}</a></dd></div>
+    <div><dt>الموضوع</dt><dd>{{ m.subject or '—' }}</dd></div>
+    <div><dt>التاريخ (UTC)</dt><dd class="mono">{{ m.created_at.strftime('%Y-%m-%d %H:%M') }}</dd></div>
+  </dl>
+  <hr>
+  <div class="message-body" dir="auto">{{ m.body|paragraphs }}</div>
+</article>
+{% endblock %}

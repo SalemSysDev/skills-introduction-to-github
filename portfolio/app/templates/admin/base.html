@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}لوحة التحكم{% endblock %} — {{ profile.display_name or 'Portfolio' }}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <script nonce="{{ csp_nonce }}">
+    (function () { try { var s = localStorage.getItem('theme'); document.documentElement.setAttribute('data-theme', s || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')); } catch (e) {} })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin {% block body_class %}{% endblock %}">
+{% block layout %}
+<div class="admin-shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="{{ url_for('admin.dashboard') }}">
+      <span class="brand-mark" aria-hidden="true"><span>&lt;</span>SM<span>/&gt;</span></span>
+      <span class="brand-text"><strong>لوحة التحكم</strong><small>{{ profile.brand_name or 'Admin' }}</small></span>
+    </a>
+    {% set ep = request.endpoint or '' %}
+    <nav class="side-nav" aria-label="قائمة الإدارة">
+      <p class="side-label">عام</p>
+      <a href="{{ url_for('admin.dashboard') }}" {% if ep == 'admin.dashboard' %}aria-current="page"{% endif %}>{{ icon('grid', 18) }} الرئيسية</a>
+      <a href="{{ url_for('admin.profile') }}" {% if ep == 'admin.profile' %}aria-current="page"{% endif %}>{{ icon('user', 18) }} البيانات الشخصية</a>
+      <a href="{{ url_for('admin.sections') }}" {% if ep == 'admin.sections' %}aria-current="page"{% endif %}>{{ icon('sliders', 18) }} الأقسام وترتيبها</a>
+      <p class="side-label">المحتوى</p>
+      <a href="{{ url_for('admin.projects') }}" {% if ep.startswith('admin.project') %}aria-current="page"{% endif %}>{{ icon('folder', 18) }} المشاريع</a>
+      <a href="{{ url_for('admin.skills') }}" {% if ep.startswith('admin.skill') %}aria-current="page"{% endif %}>{{ icon('code', 18) }} المهارات</a>
+      <a href="{{ url_for('admin.services') }}" {% if ep.startswith('admin.service') %}aria-current="page"{% endif %}>{{ icon('layers', 18) }} الخدمات</a>
+      <a href="{{ url_for('admin.timeline') }}" {% if ep.startswith('admin.timeline') %}aria-current="page"{% endif %}>{{ icon('graduation', 18) }} التعليم والخبرات</a>
+      <a href="{{ url_for('admin.gallery') }}" {% if ep.startswith('admin.gallery') %}aria-current="page"{% endif %}>{{ icon('image', 18) }} معرض الصور</a>
+      <p class="side-label">التواصل</p>
+      <a href="{{ url_for('admin.messages') }}" {% if ep.startswith('admin.message') %}aria-current="page"{% endif %}>{{ icon('inbox', 18) }} الرسائل {% if unread_count %}<span class="badge">{{ unread_count }}</span>{% endif %}</a>
+      <a href="{{ url_for('admin.account') }}" {% if ep == 'admin.account' %}aria-current="page"{% endif %}>{{ icon('lock', 18) }} الحساب والأمان</a>
+    </nav>
+  </aside>
+  <div class="sidebar-backdrop" data-sidebar-close></div>
+
+  <div class="admin-main">
+    <header class="topbar">
+      <button class="tool-btn side-toggle" type="button" data-sidebar-toggle aria-controls="sidebar" aria-expanded="false" aria-label="القائمة">{{ icon('menu', 20) }}</button>
+      <h1 class="topbar-title">{% block heading %}{{ self.title() }}{% endblock %}</h1>
+      <div class="topbar-tools">
+        <a class="tool-btn" href="{{ url_for('public.home') }}" target="_blank" rel="noopener">{{ icon('external', 16) }}<span class="hide-sm">عرض الموقع</span></a>
+        <button class="tool-btn" type="button" data-theme-toggle aria-label="تبديل الوضع"><span class="theme-icon-dark">{{ icon('moon', 18) }}</span><span class="theme-icon-light">{{ icon('sun', 18) }}</span></button>
+        <form method="post" action="{{ url_for('admin.logout') }}" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="tool-btn" type="submit" title="تسجيل الخروج">{{ icon('logout', 18) }}<span class="hide-sm">خروج</span></button>
+        </form>
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="toasts" role="status" aria-live="polite">
+      {% for category, message in messages %}
+      <div class="toast toast-{{ category }}">{{ icon('check' if category == 'success' else 'alert', 18) }}<span>{{ message }}</span>
+        <button type="button" class="toast-close" aria-label="إغلاق">{{ icon('x', 16) }}</button></div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <main class="admin-content" id="main">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% endblock %}
+<script src="{{ url_for('static', filename='js/admin.js') }}" defer></script>
+</body>
+</html>

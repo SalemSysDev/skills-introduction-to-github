@@ -1,0 +1,68 @@
+{% macro section_head(num, eyebrow, title, subtitle="", tag="h2") -%}
+<header class="section-head reveal">
+  <p class="eyebrow"><span class="eyebrow-num">{{ num }}</span><span class="eyebrow-sep">//</span>{{ eyebrow }}</p>
+  <{{ tag }} class="section-title">{{ title }}</{{ tag }}>
+  {% if subtitle %}<p class="section-sub">{{ subtitle }}</p>{% endif %}
+</header>
+{%- endmacro %}
+
+{% macro social_links(profile, cls="socials") -%}
+{% set links = [] %}
+{% if profile.github_url %}{% set _ = links.append(("github", profile.github_url, "GitHub")) %}{% endif %}
+{% if profile.facebook_url %}{% set _ = links.append(("facebook", profile.facebook_url, "Facebook")) %}{% endif %}
+{% if profile.linkedin_url %}{% set _ = links.append(("linkedin", profile.linkedin_url, "LinkedIn")) %}{% endif %}
+{% if profile.whatsapp_link %}{% set _ = links.append(("whatsapp", profile.whatsapp_link, "WhatsApp")) %}{% endif %}
+{% if profile.email %}{% set _ = links.append(("mail", "mailto:" ~ profile.email, t("contact.email"))) %}{% endif %}
+{% if links %}
+<ul class="{{ cls }}" role="list">
+  {% for name, href, label in links %}
+  <li><a class="social-btn" href="{{ href }}" {% if not href.startswith('mailto:') %}target="_blank" rel="noopener noreferrer"{% endif %} aria-label="{{ label }}" title="{{ label }}">{{ icon(name, 18) }}</a></li>
+  {% endfor %}
+</ul>
+{% endif %}
+{%- endmacro %}
+
+{% macro project_card(project, index=0) -%}
+{% set url = url_for('public.project_detail', slug=project.slug) %}
+<article class="project-card reveal" style="--d: {{ (index % 3) * 80 }}ms">
+  <a class="project-media" href="{{ url }}" tabindex="-1" aria-hidden="true">
+    {% if project.cover %}
+      <img src="{{ url_for('static', filename=project.cover.thumb_path) }}" alt="" loading="lazy" decoding="async" width="640" height="400">
+    {% else %}
+      <span class="project-media-empty">{{ icon('code', 40) }}</span>
+    {% endif %}
+    {% if project.images|length > 1 %}<span class="media-count">{{ icon('image', 14) }} {{ project.images|length }}</span>{% endif %}
+  </a>
+  <div class="project-body">
+    <div class="project-meta">
+      {% if project.category %}<span class="chip chip-soft">{{ tr(project.category, 'name') }}</span>{% endif %}
+      {% if project.is_featured %}<span class="chip chip-accent">{{ icon('star', 12) }}</span>{% endif %}
+      {% if project.project_date %}<span class="mono muted small">{{ project.project_date }}</span>{% endif %}
+    </div>
+    <h3 class="project-title"><a href="{{ url }}">{{ tr(project, 'title') }}</a></h3>
+    <p class="project-summary">{{ tr(project, 'summary') }}</p>
+    {% if project.tech_list %}
+    <ul class="tech-list" role="list" aria-label="{{ t('projects.tech') }}">
+      {% for tech in project.tech_list[:5] %}<li>{{ tech }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    <div class="project-actions">
+      <a class="link-arrow" href="{{ url }}">{{ t('projects.details') }} {{ icon('arrow-right', 16, 'flip-rtl') }}</a>
+      <span class="project-icons">
+        {% if project.github_url %}<a href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ t('projects.source') }}" title="{{ t('projects.source') }}">{{ icon('github', 18) }}</a>{% endif %}
+        {% if project.demo_url %}<a href="{{ project.demo_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ t('projects.demo') }}" title="{{ t('projects.demo') }}">{{ icon('external', 18) }}</a>{% endif %}
+      </span>
+    </div>
+  </div>
+</article>
+{%- endmacro %}
+
+{% macro avatar(profile, size="lg") -%}
+<div class="avatar avatar-{{ size }}">
+  {% if profile.avatar_path %}
+    <img src="{{ url_for('static', filename=profile.avatar_path) }}" alt="{{ profile.display_name or tr(profile, 'full_name') }}" width="480" height="480" {% if size == 'lg' %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+  {% else %}
+    <span class="avatar-initials" aria-hidden="true">{{ (profile.display_name or 'S M').split()|map('first')|join('')|upper }}</span>
+  {% endif %}
+</div>
+{%- endmacro %}

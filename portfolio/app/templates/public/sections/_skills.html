@@ -1,0 +1,30 @@
+{% from "partials/_macros.html" import section_head %}
+<section class="section section-skills" id="skills">
+  <div class="container">
+    {{ section_head(num|default('01'), 'skills', t('skills.title'), t('skills.subtitle'), tag=('h1' if standalone else 'h2')) }}
+    <div class="skills-grid">
+      {% for cat in skill_categories %}
+      <article class="skill-card reveal" style="--d: {{ (loop.index0 % 3) * 80 }}ms">
+        <div class="skill-card-head">
+          <span class="icon-box">{{ icon(cat.icon, 22) }}</span>
+          <div>
+            <h3>{{ tr(cat, 'name') }}</h3>
+            <p class="mono muted small">{{ cat.name_en if lang == 'ar' else cat.name_ar }}</p>
+          </div>
+          <span class="skill-count mono" aria-hidden="true">{{ "%02d"|format(cat.skills|length) }}</span>
+        </div>
+        {% if cat.skills %}
+        <ul class="skill-tags" role="list">
+          {% for skill in cat.skills %}
+          <li class="skill-tag{% if skill.level %} has-level level-{{ skill.level }}{% endif %}">
+            <span>{{ skill.name }}</span>
+            {% if skill.level %}<small>{{ t('skills.level.' ~ skill.level) }}</small>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

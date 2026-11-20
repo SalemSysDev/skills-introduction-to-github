@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import bi, input, checkbox %}
+{% block title %}{{ 'تعديل عنصر' if item.id else 'إضافة عنصر' }} — التعليم والخبرات{% endblock %}
+{% block content %}
+<div class="page-actions"><a class="a-btn" href="{{ url_for('admin.timeline') }}">{{ icon('arrow-right', 16) }} القائمة</a></div>
+<form method="post" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label class="field"><span>النوع</span>
+    <select name="kind">{% for k, v in kind_labels.items() %}<option value="{{ k }}" {% if item.kind == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+  </label>
+  {{ bi(item, 'title', 'العنوان (المؤهل / المسمى / اسم الدورة / الشهادة)', 200, required=true) }}
+  {{ bi(item, 'organization', 'الجهة (الجامعة / الشركة / الجهة المانحة)', 200) }}
+  {{ bi(item, 'description', 'الوصف', 4000, textarea=true, rows=4) }}
+  <div class="grid-3">
+    {{ input('start_date', 'من (نص حر)', item.start_date, maxlength=30, placeholder='2020') }}
+    {{ input('end_date', 'إلى (نص حر)', item.end_date, maxlength=30, placeholder='2024 / حتى الآن') }}
+    {{ input('sort_order', 'الترتيب', item.sort_order or 0, type='number') }}
+  </div>
+  {{ input('link_url', 'رابط (شهادة / تحقق) — اختياري', item.link_url, type='url', dir='ltr') }}
+  {{ checkbox('is_visible', 'ظاهر في الموقع', item.is_visible) }}
+  <div><button class="a-btn a-btn-primary" type="submit">{{ icon('check', 16) }} حفظ</button></div>
+</form>
+{% endblock %}

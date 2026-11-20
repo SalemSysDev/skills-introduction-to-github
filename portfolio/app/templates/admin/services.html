@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import delete_form %}
+{% block title %}الخدمات{% endblock %}
+{% block content %}
+<div class="page-actions"><a class="a-btn a-btn-primary" href="{{ url_for('admin.service_form') }}">{{ icon('plus', 16) }} إضافة خدمة</a></div>
+<section class="card">
+  {% if items %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>الخدمة</th><th>الحالة</th><th>الترتيب</th><th><span class="sr-only">إجراءات</span></th></tr></thead>
+    <tbody>
+    {% for s in items %}
+      <tr>
+        <td><div class="cell-media"><span class="icon-box">{{ icon(s.icon, 18) }}</span><div><strong>{{ s.title_ar }}</strong><br><small class="muted mono">{{ s.title_en }}</small></div></div></td>
+        <td>{% if s.is_visible %}<span class="pill pill-green">ظاهرة</span>{% else %}<span class="pill">مخفية</span>{% endif %}</td>
+        <td class="mono">{{ s.sort_order }}</td>
+        <td class="row-actions">
+          <a class="a-btn a-btn-sm" href="{{ url_for('admin.service_form', service_id=s.id) }}">{{ icon('edit', 15) }} تعديل</a>
+          {{ delete_form(url_for('admin.service_delete', service_id=s.id)) }}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<p class="empty">لا توجد خدمات بعد.</p>{% endif %}
+</section>
+{% endblock %}

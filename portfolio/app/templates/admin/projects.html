@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import delete_form %}
+{% block title %}المشاريع{% endblock %}
+{% block content %}
+<div class="page-actions">
+  <a class="a-btn a-btn-primary" href="{{ url_for('admin.project_form') }}">{{ icon('plus', 16) }} إضافة مشروع</a>
+</div>
+
+<section class="card">
+  {% if items %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>المشروع</th><th>التصنيف</th><th>الحالة</th><th>الترتيب</th><th><span class="sr-only">إجراءات</span></th></tr></thead>
+    <tbody>
+      {% for p in items %}
+      <tr>
+        <td>
+          <div class="cell-media">
+            {% if p.cover %}<img src="{{ url_for('static', filename=p.cover.thumb_path) }}" alt="" width="64" height="40">{% else %}<span class="thumb-empty">{{ icon('image', 16) }}</span>{% endif %}
+            <div><strong>{{ p.title_ar or p.title_en }}</strong><br><small class="muted mono">/projects/{{ p.slug }} · {{ p.images|length }} صور</small></div>
+          </div>
+        </td>
+        <td>{{ p.category.name_ar if p.category else '—' }}</td>
+        <td>
+          {% if p.is_published %}<span class="pill pill-green">منشور</span>{% else %}<span class="pill">مسودة</span>{% endif %}
+          {% if p.is_featured %}<span class="pill pill-amber">مميز</span>{% endif %}
+        </td>
+        <td class="mono">{{ p.sort_order }}</td>
+        <td class="row-actions">
+          {% if p.is_published %}<a class="a-btn a-btn-sm" href="{{ url_for('public.project_detail', slug=p.slug) }}" target="_blank" rel="noopener" aria-label="عرض">{{ icon('eye', 15) }}</a>{% endif %}
+          <a class="a-btn a-btn-sm" href="{{ url_for('admin.project_form', project_id=p.id) }}">{{ icon('edit', 15) }} تعديل</a>
+          {{ delete_form(url_for('admin.project_delete', project_id=p.id), confirm='حذف المشروع وكل صوره نهائياً؟') }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="empty">لا توجد مشاريع بعد. <a href="{{ url_for('admin.project_form') }}">أضف أول مشروع</a>.</p>
+  {% endif %}
+</section>
+
+<section class="card" id="categories">
+  <h2 class="card-title">{{ icon('folder', 18) }} تصنيفات المشاريع</h2>
+  <div class="inline-rows">
+    {% for c in categories %}
+    <form method="post" action="{{ url_for('admin.project_category_save', category_id=c.id) }}" class="inline-row">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="text" name="name_ar" value="{{ c.name_ar }}" placeholder="الاسم بالعربية" maxlength="100" aria-label="الاسم بالعربية">
+      <input type="text" name="name_en" value="{{ c.name_en }}" placeholder="English name" dir="ltr" maxlength="100" aria-label="English name">
+      <input type="number" name="sort_order" value="{{ c.sort_order }}" class="num" aria-label="الترتيب">
+      <button class="a-btn a-btn-sm" type="submit">{{ icon('check', 15) }} حفظ</button>
+      <button class="a-btn a-btn-sm btn-danger" type="submit" form="del-cat-{{ c.id }}">{{ icon('trash', 15) }}</button>
+    </form>
+    <form id="del-cat-{{ c.id }}" method="post" action="{{ url_for('admin.project_category_delete', category_id=c.id) }}" data-confirm="حذف التصنيف؟ ستصبح مشاريعه بدون تصنيف." hidden>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+    {% endfor %}
+    <form method="post" action="{{ url_for('admin.project_category_save') }}" class="inline-row is-new">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="text" name="name_ar" placeholder="تصنيف جديد بالعربية" maxlength="100" aria-label="الاسم بالعربية">
+      <input type="text" name="name_en" placeholder="New category (English)" dir="ltr" maxlength="100" aria-label="English name">
+      <input type="number" name="sort_order" value="{{ categories|length + 1 }}" class="num" aria-label="الترتيب">
+      <button class="a-btn a-btn-sm a-btn-primary" type="submit">{{ icon('plus', 15) }} إضافة</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
