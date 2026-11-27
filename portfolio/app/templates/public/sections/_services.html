@@ -1,0 +1,17 @@
+{% from "partials/_macros.html" import section_head %}
+<section class="section section-services" id="services">
+  <div class="container">
+    {{ section_head(num|default('01'), 'services', t('services.title'), t('services.subtitle'), tag=('h1' if standalone else 'h2')) }}
+    <div class="services-grid">
+      {% for s in services %}
+      <article class="service-card reveal" style="--d: {{ (loop.index0 % 3) * 80 }}ms">
+        <span class="service-num mono" aria-hidden="true">{{ "%02d"|format(loop.index) }}</span>
+        <span class="icon-box icon-box-lg">{{ icon(s.icon, 26) }}</span>
+        <h3>{{ tr(s, 'title') }}</h3>
+        {% if lang == 'ar' and s.title_en %}<p class="mono muted small">{{ s.title_en }}</p>{% endif %}
+        <p class="service-desc">{{ tr(s, 'description') }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

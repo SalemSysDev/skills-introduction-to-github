@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import bi, input, checkbox, image_field %}
+{% block title %}البيانات الشخصية{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <nav class="jump-links" aria-label="أقسام النموذج">
+    <a href="#identity">الهوية</a><a href="#hero">الواجهة الرئيسية</a><a href="#about">من أنا</a><a href="#images">الصور</a><a href="#contact">التواصل</a><a href="#seo">SEO</a>
+  </nav>
+
+  <section class="card" id="identity">
+    <h2 class="card-title">{{ icon('user', 18) }} الهوية الشخصية</h2>
+    {{ bi(p, 'full_name', 'الاسم الكامل', 150) }}
+    <div class="grid-2">
+      {{ input('display_name', 'الاسم المهني (يظهر في الواجهة)', p.display_name, maxlength=100, dir='ltr') }}
+      {{ input('brand_name', 'العلامة الشخصية', p.brand_name, maxlength=100, dir='ltr') }}
+    </div>
+    {{ bi(p, 'title', 'المسمى المهني', 150) }}
+  </section>
+
+  <section class="card" id="hero">
+    <h2 class="card-title">{{ icon('rocket', 18) }} محتوى الواجهة الرئيسية (Hero)</h2>
+    {{ bi(p, 'tagline', 'العبارة التعريفية', 255) }}
+    {{ bi(p, 'short_bio', 'وصف مختصر', 1000, textarea=true, rows=3) }}
+    {{ checkbox('is_available', 'إظهار شارة "متاح للعمل"', p.is_available) }}
+    {{ bi(p, 'availability', 'نص شارة التوفر', 120) }}
+  </section>
+
+  <section class="card" id="about">
+    <h2 class="card-title">{{ icon('book', 18) }} من أنا</h2>
+    {{ bi(p, 'about', 'النبذة التعريفية', 6000, textarea=true, rows=7, hint='افصل بين الفقرات بسطر فارغ.') }}
+    {{ bi(p, 'specialization', 'التخصص', 150) }}
+    {{ bi(p, 'qualification', 'المؤهل الدراسي', 200, hint='مثال: بكالوريوس ... — يظهر في بطاقة "من أنا". التفاصيل الكاملة تضاف من "التعليم والخبرات".') }}
+    {{ bi(p, 'location', 'الموقع / المدينة', 120) }}
+    {{ bi(p, 'interests', 'الاهتمامات', 2000, textarea=true, rows=4, hint='كل اهتمام في سطر مستقل.') }}
+    {{ bi(p, 'goals', 'الأهداف المهنية', 2000, textarea=true, rows=4) }}
+  </section>
+
+  <section class="card" id="images">
+    <h2 class="card-title">{{ icon('image', 18) }} الصور</h2>
+    <p class="hint">الصيغ المسموحة: JPG, PNG, WEBP, GIF — الحجم الأقصى {{ config.MAX_IMAGE_MB }} ميغابايت. تُضغط الصور تلقائياً وتُحوّل إلى WebP.</p>
+    <div class="grid-3">
+      {{ image_field('avatar', 'الصورة الشخصية', p.avatar_path, 'يفضّل صورة مربعة.') }}
+      {{ image_field('about_image', 'صورة قسم "من أنا"', p.about_image_path, 'يفضّل صورة طولية.') }}
+      {{ image_field('cover', 'صورة الغلاف (خلفية الواجهة)', p.cover_path, 'تظهر بشفافية خفيفة خلف الواجهة.') }}
+    </div>
+  </section>
+
+  <section class="card" id="contact">
+    <h2 class="card-title">{{ icon('mail', 18) }} التواصل والروابط الاجتماعية</h2>
+    <p class="hint">الحقول الفارغة لا تظهر في الموقع.</p>
+    <div class="grid-2">
+      {{ input('email', 'البريد الإلكتروني', p.email, type='email', maxlength=150, dir='ltr') }}
+      {{ input('whatsapp_number', 'رقم واتساب (بالصيغة الدولية)', p.whatsapp_number, maxlength=30, dir='ltr', placeholder='+9665xxxxxxxx') }}
+      {{ input('github_url', 'رابط GitHub', p.github_url, type='url', dir='ltr', placeholder='https://github.com/username') }}
+      {{ input('facebook_url', 'رابط Facebook', p.facebook_url, type='url', dir='ltr', placeholder='https://facebook.com/username') }}
+      {{ input('linkedin_url', 'رابط LinkedIn (اختياري)', p.linkedin_url, type='url', dir='ltr') }}
+      {{ input('cv_url', 'رابط السيرة الذاتية (اختياري)', p.cv_url, type='url', dir='ltr') }}
+    </div>
+  </section>
+
+  <section class="card" id="seo">
+    <h2 class="card-title">{{ icon('globe', 18) }} تحسين محركات البحث (SEO)</h2>
+    {{ bi(p, 'meta_description', 'وصف الموقع لمحركات البحث', 300, textarea=true, rows=2, hint='يُفضّل بين 120 و160 حرفاً.') }}
+  </section>
+
+  <div class="sticky-actions"><button class="a-btn a-btn-primary" type="submit">{{ icon('check', 16) }} حفظ التغييرات</button></div>
+</form>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import bi, input, checkbox, icon_select %}
+{% block title %}{{ 'تعديل خدمة' if item.id else 'خدمة جديدة' }}{% endblock %}
+{% block content %}
+<div class="page-actions"><a class="a-btn" href="{{ url_for('admin.services') }}">{{ icon('arrow-right', 16) }} كل الخدمات</a></div>
+<form method="post" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {{ bi(item, 'title', 'اسم الخدمة', 120, required=true) }}
+  {{ bi(item, 'description', 'وصف مختصر', 2000, textarea=true, rows=3) }}
+  {{ icon_select('icon', item.icon or 'code') }}
+  <div class="grid-2">
+    {{ input('sort_order', 'الترتيب', item.sort_order or 0, type='number') }}
+    <div class="switch-row">{{ checkbox('is_visible', 'ظاهرة في الموقع', item.is_visible) }}</div>
+  </div>
+  <div><button class="a-btn a-btn-primary" type="submit">{{ icon('check', 16) }} حفظ</button></div>
+</form>
+{% endblock %}

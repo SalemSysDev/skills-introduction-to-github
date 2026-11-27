@@ -1,0 +1,40 @@
+{% from "partials/_macros.html" import section_head %}
+{% set kind_icons = {"education": "graduation", "experience": "briefcase", "course": "book", "certificate": "award", "achievement": "trophy"} %}
+<section class="section section-timeline" id="timeline">
+  <div class="container">
+    {{ section_head(num|default('01'), 'journey', t('timeline.title'), t('timeline.subtitle'), tag=('h1' if standalone else 'h2')) }}
+    {% if timeline_groups %}
+    {% if timeline_groups|length > 1 %}
+    <div class="tabs reveal" role="tablist" aria-label="{{ t('timeline.title') }}" data-tabs>
+      {% for kind in timeline_groups %}
+      <button type="button" role="tab" id="tab-{{ kind }}" aria-controls="panel-{{ kind }}" aria-selected="{{ 'true' if loop.first else 'false' }}" {% if not loop.first %}tabindex="-1"{% endif %}>
+        {{ icon(kind_icons[kind], 16) }} {{ t('kind.' ~ kind) }} <span class="tab-count">{{ timeline_groups[kind]|length }}</span>
+      </button>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% for kind, entries in timeline_groups.items() %}
+    <div class="tab-panel" role="tabpanel" id="panel-{{ kind }}" aria-labelledby="tab-{{ kind }}" {% if not loop.first %}hidden{% endif %}>
+      <ol class="timeline" role="list">
+        {% for e in entries %}
+        <li class="timeline-item reveal" style="--d: {{ loop.index0 * 70 }}ms">
+          <span class="timeline-dot" aria-hidden="true">{{ icon(kind_icons[e.kind], 16) }}</span>
+          <div class="timeline-card">
+            {% if e.start_date or e.end_date %}
+            <p class="timeline-date mono">{{ e.start_date }}{% if e.start_date and e.end_date %} — {% endif %}{{ e.end_date }}</p>
+            {% endif %}
+            <h3>{{ tr(e, 'title') }}</h3>
+            {% if tr(e, 'organization') %}<p class="timeline-org">{{ tr(e, 'organization') }}</p>{% endif %}
+            {% if tr(e, 'description') %}<div class="prose small">{{ tr(e, 'description')|paragraphs }}</div>{% endif %}
+            {% if e.link_url %}<a class="link-arrow small" href="{{ e.link_url }}" target="_blank" rel="noopener noreferrer">{{ icon('external', 14) }} {{ e.link_url|replace('https://','')|truncate(40) }}</a>{% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="empty-state">{{ icon('book', 28) }} {{ t('timeline.empty') }}</p>
+    {% endif %}
+  </div>
+</section>

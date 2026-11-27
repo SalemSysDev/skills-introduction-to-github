@@ -1,0 +1,54 @@
+{% from "partials/_macros.html" import section_head %}
+<section class="section section-about" id="about">
+  <div class="container">
+    {{ section_head(num|default('01'), 'about', t('about.title'), t('about.subtitle'), tag=('h1' if standalone else 'h2')) }}
+    <div class="about-grid">
+      <div class="about-media reveal">
+        <div class="about-photo">
+          {% set about_img = profile.about_image_path or profile.avatar_path %}
+          {% if about_img %}
+            <img src="{{ url_for('static', filename=about_img) }}" alt="{{ profile.display_name }}" loading="lazy" decoding="async" width="560" height="640">
+          {% else %}
+            <span class="about-photo-empty" aria-hidden="true">{{ icon('user', 72) }}</span>
+          {% endif %}
+          <span class="corner corner-tl" aria-hidden="true"></span><span class="corner corner-br" aria-hidden="true"></span>
+        </div>
+        <dl class="fact-list">
+          {% if tr(profile, 'specialization') %}
+          <div class="fact"><dt>{{ icon('cpu', 18) }} {{ t('about.specialization') }}</dt><dd>{{ tr(profile, 'specialization') }}</dd></div>
+          {% endif %}
+          {% if tr(profile, 'qualification') %}
+          <div class="fact"><dt>{{ icon('graduation', 18) }} {{ t('about.qualification') }}</dt><dd>{{ tr(profile, 'qualification') }}</dd></div>
+          {% endif %}
+          {% if tr(profile, 'location') %}
+          <div class="fact"><dt>{{ icon('map-pin', 18) }} {{ t('about.location') }}</dt><dd>{{ tr(profile, 'location') }}</dd></div>
+          {% endif %}
+        </dl>
+      </div>
+      <div class="about-content reveal" style="--d:120ms">
+        <h3 class="about-heading" id="about-title">{{ tr(profile, 'full_name') }}</h3>
+        <p class="about-role mono">{{ tr(profile, 'title') }}{% if profile.brand_name %} · {{ profile.brand_name }}{% endif %}</p>
+        <div class="prose">{{ tr(profile, 'about')|paragraphs }}</div>
+
+        <div class="about-cards">
+          {% set interests = tr(profile, 'interests')|lines %}
+          {% if interests %}
+          <div class="mini-card">
+            <h4>{{ icon('lightbulb', 18) }} {{ t('about.interests') }}</h4>
+            <ul class="check-list" role="list">{% for item in interests %}<li>{{ item }}</li>{% endfor %}</ul>
+          </div>
+          {% endif %}
+          {% if tr(profile, 'goals') %}
+          <div class="mini-card">
+            <h4>{{ icon('target', 18) }} {{ t('about.goals') }}</h4>
+            <div class="prose small">{{ tr(profile, 'goals')|paragraphs }}</div>
+          </div>
+          {% endif %}
+        </div>
+        {% if profile.cv_url %}
+        <a class="btn btn-ghost" href="{{ profile.cv_url }}" target="_blank" rel="noopener noreferrer">{{ icon('download', 18) }} {{ t('about.cv') }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% from "partials/_macros.html" import social_links, avatar %}
+{% block body_class %}page-home{% endblock %}
+
+{% block content %}
+<section class="hero" aria-labelledby="hero-title">
+  <canvas class="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-grid" aria-hidden="true"></div>
+  {% if profile.cover_path %}
+  <div class="hero-cover" aria-hidden="true" style="background-image:url('{{ url_for('static', filename=profile.cover_path) }}')"></div>
+  {% endif %}
+  <div class="hero-glow hero-glow-1" aria-hidden="true"></div>
+  <div class="hero-glow hero-glow-2" aria-hidden="true"></div>
+
+  <div class="container hero-inner">
+    <div class="hero-text">
+      {% if profile.is_available and tr(profile, 'availability') %}
+      <p class="status-pill hero-anim" style="--d:0ms"><span class="pulse-dot" aria-hidden="true"></span>{{ tr(profile, 'availability') }}</p>
+      {% endif %}
+      <p class="hero-hello mono hero-anim" style="--d:80ms">
+        <span class="muted">const</span> <span class="c-blue">developer</span> <span class="muted">=</span>
+        <span class="c-violet">"{{ tr(profile, 'full_name') }}"</span><span class="muted">;</span>
+      </p>
+      <h1 class="hero-title hero-anim" id="hero-title" style="--d:160ms">
+        <span class="gradient-text">{{ profile.display_name or 'Salem Makki' }}</span>
+      </h1>
+      <p class="hero-role mono hero-anim" style="--d:240ms">
+        <span class="role-bracket">&gt;_</span>
+        <span class="typed" data-typed="{{ [profile.title_en, tr(profile, 'title')]|select|unique|list|tojson|forceescape }}">{{ profile.title_en or tr(profile, 'title') }}</span><span class="caret" aria-hidden="true"></span>
+      </p>
+      {% if tr(profile, 'tagline') %}
+      <p class="hero-tagline hero-anim" style="--d:320ms">{{ tr(profile, 'tagline') }}</p>
+      {% endif %}
+      {% if tr(profile, 'short_bio') %}
+      <p class="hero-bio hero-anim" style="--d:400ms">{{ tr(profile, 'short_bio') }}</p>
+      {% endif %}
+      <div class="hero-cta hero-anim" style="--d:480ms">
+        {% if 'projects' in home_sections %}
+        <a class="btn btn-primary" href="#projects">{{ t('hero.cta_projects') }} {{ icon('arrow-down', 18) }}</a>
+        {% endif %}
+        {% if 'contact' in home_sections %}
+        <a class="btn btn-ghost" href="#contact">{{ icon('send', 18) }} {{ t('hero.cta_contact') }}</a>
+        {% endif %}
+      </div>
+      <div class="hero-anim" style="--d:560ms">{{ social_links(profile, "socials hero-socials") }}</div>
+    </div>
+
+    <div class="hero-visual hero-anim" style="--d:200ms">
+      <div class="avatar-frame" data-tilt>
+        <div class="avatar-ring" aria-hidden="true"></div>
+        {{ avatar(profile, "lg") }}
+        <span class="float-chip chip-1" aria-hidden="true">{{ icon('code', 16) }} Web</span>
+        <span class="float-chip chip-2" aria-hidden="true">{{ icon('database', 16) }} Data</span>
+        <span class="float-chip chip-3" aria-hidden="true">{{ icon('workflow', 16) }} Systems</span>
+      </div>
+      <div class="terminal-card" aria-hidden="true">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>solve.py</span></div>
+        <pre class="terminal-body"><code><span class="c-violet">def</span> <span class="c-blue">solve</span>(idea):
+    reqs   = analyse(idea)
+    design = model(reqs)
+    <span class="c-violet">return</span> build(design)  <span class="muted"># ✓ shipped</span></code></pre>
+      </div>
+    </div>
+  </div>
+
+  {% if home_sections %}
+  <a class="scroll-cue" href="#{{ home_sections[0] }}" aria-label="{{ t('hero.scroll') }}"><span></span></a>
+  {% endif %}
+</section>
+
+{% for key in home_sections %}
+  {% set num = "%02d"|format(loop.index) %}
+  {% include "public/sections/_" ~ key ~ ".html" %}
+{% endfor %}
+{% endblock %}

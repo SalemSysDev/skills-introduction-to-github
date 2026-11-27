@@ -1,0 +1,61 @@
+{% extends "admin/base.html" %}
+{% block title %}الرئيسية{% endblock %}
+{% block content %}
+<section class="welcome card">
+  <div>
+    <p class="mono small muted">// dashboard</p>
+    <h2>أهلاً {{ admin.username }} 👋</h2>
+    <p class="muted">من هنا تدير كل محتوى موقعك دون الحاجة لتعديل الكود.</p>
+  </div>
+  <div class="quick-actions">
+    <a class="a-btn a-btn-primary" href="{{ url_for('admin.project_form') }}">{{ icon('plus', 16) }} مشروع جديد</a>
+    <a class="a-btn" href="{{ url_for('admin.gallery') }}">{{ icon('image', 16) }} رفع صور</a>
+    <a class="a-btn" href="{{ url_for('admin.profile') }}">{{ icon('edit', 16) }} تعديل البيانات</a>
+  </div>
+</section>
+
+<section class="stats-grid">
+  {% for label, value, ic, link in [
+    ("المشاريع", stats.projects ~ " (" ~ stats.published ~ " منشور)", "folder", url_for('admin.projects')),
+    ("المهارات", stats.skills, "code", url_for('admin.skills')),
+    ("الخدمات", stats.services, "layers", url_for('admin.services')),
+    ("التعليم والخبرات", stats.timeline, "graduation", url_for('admin.timeline')),
+    ("صور المعرض", stats.gallery, "image", url_for('admin.gallery')),
+    ("الرسائل", stats.messages ~ (" (" ~ unread_count ~ " جديدة)" if unread_count else ""), "inbox", url_for('admin.messages')),
+  ] %}
+  <a class="stat card" href="{{ link }}">
+    <span class="icon-box">{{ icon(ic, 20) }}</span>
+    <span><span class="stat-value">{{ value }}</span><span class="stat-label">{{ label }}</span></span>
+  </a>
+  {% endfor %}
+</section>
+
+<div class="two-col">
+  <section class="card">
+    <h3 class="card-title">{{ icon('check', 18) }} اكتمال الملف</h3>
+    {% set done = checklist|selectattr(1)|list|length %}
+    <div class="progress" role="progressbar" aria-valuenow="{{ done }}" aria-valuemin="0" aria-valuemax="{{ checklist|length }}"><span style="width: {{ (done / checklist|length * 100)|round }}%"></span></div>
+    <p class="small muted">{{ done }} من {{ checklist|length }} مكتملة</p>
+    <ul class="checklist" role="list">
+      {% for label, ok, link in checklist %}
+      <li class="{{ 'is-done' if ok else '' }}"><a href="{{ link }}">{{ icon('check' if ok else 'alert', 16) }} {{ label }}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <h3 class="card-title">{{ icon('inbox', 18) }} أحدث الرسائل</h3>
+    {% if recent %}
+    <ul class="msg-mini" role="list">
+      {% for m in recent %}
+      <li class="{{ '' if m.is_read else 'is-unread' }}"><a href="{{ url_for('admin.message_view', message_id=m.id) }}">
+        <strong>{{ m.name }}</strong><span>{{ m.subject or m.body|truncate(60) }}</span>
+        <time class="mono small muted">{{ m.created_at.strftime('%Y-%m-%d %H:%M') }}</time></a></li>
+      {% endfor %}
+    </ul>
+    <a class="link-arrow small" href="{{ url_for('admin.messages') }}">كل الرسائل {{ icon('arrow-left', 14) }}</a>
+    {% else %}
+    <p class="muted">لا توجد رسائل بعد.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
