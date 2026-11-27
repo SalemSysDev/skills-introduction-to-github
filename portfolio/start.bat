@@ -6,20 +6,28 @@ REM ============================================================
 cd /d "%~dp0"
 title Salem Makki Portfolio
 
-where python >nul 2>nul
-if errorlevel 1 (
+REM Find a real Python 3 (the "python" command may be a Microsoft Store shortcut)
+set "SYS_PY="
+py -3 --version >nul 2>nul && set "SYS_PY=py -3"
+if not defined SYS_PY (
+  python --version >nul 2>nul && set "SYS_PY=python"
+)
+if not defined SYS_PY (
   echo.
-  echo [!] Python is not installed or not in PATH.
-  echo     Install it from https://www.python.org/downloads/
-  echo     and tick "Add Python to PATH" during setup, then run this file again.
+  echo [!] Python 3 is not installed.
+  echo     1. Install it from https://www.python.org/downloads/
+  echo     2. During setup tick "Add Python to PATH"
+  echo     3. Run this file again.
   start "" https://www.python.org/downloads/
   pause
   exit /b 1
 )
+echo Using: %SYS_PY%
+%SYS_PY% --version
 
 if not exist ".venv\Scripts\python.exe" (
   echo [1/4] Creating virtual environment...
-  python -m venv .venv || goto :error
+  %SYS_PY% -m venv .venv || goto :error
 )
 
 set "PY=.venv\Scripts\python.exe"
